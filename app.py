@@ -109,6 +109,22 @@ def evaluate_health(test, value, age_range):
     return True if v else None
 
 
+# Mapping of health screenings to service categories
+screening_to_service = {
+    'Blood pressure check': ['Cardiology', 'Preventive Care', 'Family Medicine', 'General Medicine'],
+    'BMI check': ['Preventive Care', 'Family Medicine', 'General Medicine', 'Nutrition'],
+    'Cholesterol screening': ['Cardiology', 'Preventive Care', 'Family Medicine', 'General Medicine'],
+    'Mental health screening': ['Mental Health', 'Family Medicine'],
+    'Heart disease risk assessment': ['Cardiology', 'Preventive Care', 'General Medicine'],
+    'Diabetes screening': ['Diabetes Management', 'Diabetes Care', 'Preventive Care', 'Family Medicine'],
+    'Mammogram': ['Women\'s Health', 'Oncology', 'Imaging'],
+    'Colonoscopy': ['Gastroenterology', 'General Surgery', 'Oncology'],
+    'Bone density test': ['Orthopedics', 'Women\'s Health', 'Imaging'],
+    'Vision and hearing test': ['Family Medicine', 'General Medicine'],
+    'Flu and shingles vaccines': ['Preventive Care', 'Family Medicine', 'General Medicine'],
+    'Cognitive health checkup': ['Neurology', 'Neuroscience', 'Mental Health', 'Family Medicine'],
+}
+
 providers = [
     {
         'name': 'City General Hospital',
@@ -278,8 +294,11 @@ def logout():
 def index():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
+    
     selected_age = None
     recommended_tests = []
+    selected_screening = None
+    filtered_providers = []
     user_values = {}
     health_status = {}
     unhealthy_tests = []
@@ -287,8 +306,17 @@ def index():
 
     if request.method == 'POST':
         selected_age = request.form.get('age_range', '')
+        selected_screening = request.form.get('screening', '')
         recommended_tests = health_guidelines.get(selected_age, [])
 
+        # Filter providers based on selected screening
+        if selected_screening and selected_screening in screening_to_service:
+            required_services = screening_to_service[selected_screening]
+            for provider in providers:
+                # Check if provider offers any of the required services
+                if any(service in provider['specializations'] for service in required_services):
+                    filtered_providers.append(provider)
+        
         any_values = any(
             request.form.get(t.lower().replace(' ', '_'), '').strip()
             for t in recommended_tests
@@ -312,6 +340,8 @@ def index():
         providers=providers,
         selected_age=selected_age,
         recommended_tests=recommended_tests,
+        selected_screening=selected_screening,
+        filtered_providers=filtered_providers,
         user_values=user_values,
         health_status=health_status,
         unhealthy_tests=unhealthy_tests,

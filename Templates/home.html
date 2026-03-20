@@ -34,19 +34,29 @@
 
     <!-- ── Age-Based Health Guidelines ── -->
     <section class="section">
-      <h2 class="section-header">Age-Based Health Guidelines</h2>
+      <h2 class="section-header">Find Healthcare Providers</h2>
       <form class="age-form" method="POST" action="/home">
         <label for="age_range">Select your age range:</label>
-        <select class="age-select" id="age_range" name="age_range">
+        <select class="age-select" id="age_range" name="age_range" onchange="this.form.submit()">
           <option value="" disabled {% if not selected_age %}selected{% endif %}>-- Choose age range --</option>
           {% for range in ['18-30', '31-50', '51+'] %}
           <option value="{{ range }}" {% if selected_age == range %}selected{% endif %}>{{ range }}</option>
           {% endfor %}
         </select>
-        <button class="btn-submit" type="submit">Get Recommendations</button>
+
+        {% if recommended_tests %}
+        <label for="screening">What do you need?</label>
+        <select class="age-select" id="screening" name="screening">
+          <option value="" disabled {% if not selected_screening %}selected{% endif %}>-- Choose screening --</option>
+          {% for test in recommended_tests %}
+          <option value="{{ test }}" {% if selected_screening == test %}selected{% endif %}>{{ test }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn-submit" type="submit">Find Providers</button>
+        {% endif %}
       </form>
 
-      {% if recommended_tests %}
+      {% if recommended_tests and not selected_screening %}
       <div class="recommendations">
         <p class="recommendations-title">Recommended screenings for age {{ selected_age }}:</p>
         <ul class="recommendations-list">
@@ -54,6 +64,40 @@
           <li>{{ test }}</li>
           {% endfor %}
         </ul>
+      </div>
+      {% endif %}
+
+      {% if selected_screening and filtered_providers %}
+      <div class="recommendations">
+        <p class="recommendations-title">Providers offering "{{ selected_screening }}":</p>
+        <ul class="provider-list" style="margin-top: 1rem;">
+          {% for provider in filtered_providers %}
+          <li class="provider-item">
+            <p class="provider-name">{{ provider.name }}</p>
+            <div class="provider-info">
+              <p><strong>Phone:</strong> {{ provider.phone }}</p>
+              <p><strong>Address:</strong> {{ provider.address }}</p>
+              <p><strong>Hours:</strong> {{ provider.hours }}</p>
+            </div>
+            <div class="provider-specializations">
+              {% for spec in provider.specializations %}
+              <span class="provider-tag">{{ spec }}</span>
+              {% endfor %}
+            </div>
+            <div class="provider-details">
+              <ul>
+                {% for detail in provider.details %}
+                <li>{{ detail }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% elif selected_screening and not filtered_providers %}
+      <div class="recommendations">
+        <p class="recommendations-title" style="color: #c41e3a;">No providers found for "{{ selected_screening }}". Please try another screening or contact us for assistance.</p>
       </div>
       {% endif %}
     </section>

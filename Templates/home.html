@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ theme }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,70 +8,175 @@
 </head>
 <body>
   <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-      <h1 class="dashboard-title" style="margin-bottom: 0;">Preventive Care Dashboard</h1>
+    <!-- Header -->
+    <div class="header">
+      <h1 class="dashboard-title">Preventive Care Dashboard</h1>
       <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
     </div>
 
-    <!-- ── Upcoming Appointments ── -->
-    <section class="section">
-      <h2 class="section-header">Upcoming Appointments</h2>
-      {% if appointments %}
-        <ul class="appointment-list">
-          {% for appt in appointments %}
-          <li class="appointment-item">
-            <span class="appointment-date">{{ appt.date }}</span>
-            <span class="appointment-time">{{ appt.time }}</span>
-            <span class="appointment-hospital">{{ appt.hospital }}</span>
-            <span class="appointment-purpose">{{ appt.purpose }}</span>
-          </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="appointment-empty">No upcoming appointments scheduled.</p>
-      {% endif %}
-    </section>
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <a href="/home?tab=appointments" class="nav-tab {% if active_tab == 'appointments' %}active{% endif %}">
+        <span class="nav-icon">📅</span>
+        <span>My Appointments</span>
+      </a>
+      <a href="/home?tab=book" class="nav-tab {% if active_tab == 'book' %}active{% endif %}">
+        <span class="nav-icon">🏥</span>
+        <span>Book Appointment</span>
+      </a>
+      <a href="/home?tab=providers" class="nav-tab {% if active_tab == 'providers' %}active{% endif %}">
+        <span class="nav-icon">🔍</span>
+        <span>Find Providers</span>
+      </a>
+      <a href="/home?tab=pharmacy" class="nav-tab {% if active_tab == 'pharmacy' %}active{% endif %}">
+        <span class="nav-icon">💊</span>
+        <span>Find Pharmacy</span>
+      </a>
+      <a href="/home?tab=settings" class="nav-tab {% if active_tab == 'settings' %}active{% endif %}">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </a>
+    </nav>
 
-    <!-- ── Age-Based Health Guidelines ── -->
-    <section class="section">
-      <h2 class="section-header">Find Healthcare Providers</h2>
-      <form class="age-form" method="POST" action="/home">
-        <label for="age_range">Select your age range:</label>
-        <select class="age-select" id="age_range" name="age_range" onchange="this.form.submit()">
-          <option value="" disabled {% if not selected_age %}selected{% endif %}>-- Choose age range --</option>
-          {% for range in ['18-30', '31-50', '51+'] %}
-          <option value="{{ range }}" {% if selected_age == range %}selected{% endif %}>{{ range }}</option>
-          {% endfor %}
-        </select>
-
-        {% if recommended_tests %}
-        <label for="screening">What do you need?</label>
-        <select class="age-select" id="screening" name="screening">
-          <option value="" disabled {% if not selected_screening %}selected{% endif %}>-- Choose screening --</option>
-          {% for test in recommended_tests %}
-          <option value="{{ test }}" {% if selected_screening == test %}selected{% endif %}>{{ test }}</option>
-          {% endfor %}
-        </select>
-        <button class="btn-submit" type="submit">Find Providers</button>
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- My Appointments Tab -->
+      {% if active_tab == 'appointments' %}
+      <section class="section">
+        <h2 class="section-header">Upcoming Appointments</h2>
+        {% if appointments %}
+          <ul class="appointment-list">
+            {% for appt in appointments %}
+            <li class="appointment-item">
+              <span class="appointment-date">{{ appt.date }}</span>
+              <span class="appointment-time">{{ appt.time }}</span>
+              <span class="appointment-hospital">{{ appt.hospital }}</span>
+              <span class="appointment-purpose">{{ appt.purpose }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="appointment-empty">No upcoming appointments scheduled. Book an appointment to get started!</p>
         {% endif %}
-      </form>
-
-      {% if recommended_tests and not selected_screening %}
-      <div class="recommendations">
-        <p class="recommendations-title">Recommended screenings for age {{ selected_age }}:</p>
-        <ul class="recommendations-list">
-          {% for test in recommended_tests %}
-          <li>{{ test }}</li>
-          {% endfor %}
-        </ul>
-      </div>
+      </section>
       {% endif %}
 
-      {% if selected_screening and filtered_providers %}
-      <div class="recommendations">
-        <p class="recommendations-title">Providers offering "{{ selected_screening }}":</p>
-        <ul class="provider-list" style="margin-top: 1rem;">
-          {% for provider in filtered_providers %}
+      <!-- Book Appointment Tab -->
+      {% if active_tab == 'book' %}
+      <section class="section">
+        <h2 class="section-header">Book an Appointment</h2>
+        <form class="age-form" method="POST" action="/home?tab=book">
+          <label for="age_range">Select your age range:</label>
+          <select class="age-select" id="age_range" name="age_range" onchange="this.form.submit()">
+            <option value="" disabled {% if not selected_age %}selected{% endif %}>-- Choose age range --</option>
+            {% for range in ['18-30', '31-50', '51+'] %}
+            <option value="{{ range }}" {% if selected_age == range %}selected{% endif %}>{{ range }}</option>
+            {% endfor %}
+          </select>
+
+          {% if recommended_tests %}
+          <label for="screening">What do you need?</label>
+          <select class="age-select" id="screening" name="screening">
+            <option value="" disabled {% if not selected_screening %}selected{% endif %}>-- Choose screening --</option>
+            {% for test in recommended_tests %}
+            <option value="{{ test }}" {% if selected_screening == test %}selected{% endif %}>{{ test }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn-submit" type="submit">Find Providers</button>
+          {% endif %}
+        </form>
+
+        {% if recommended_tests and not selected_screening %}
+        <div class="recommendations">
+          <p class="recommendations-title">Recommended screenings for age {{ selected_age }}:</p>
+          <ul class="recommendations-list">
+            {% for test in recommended_tests %}
+            <li>{{ test }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if selected_screening and filtered_providers %}
+        <div class="recommendations">
+          <p class="recommendations-title">Providers offering "{{ selected_screening }}":</p>
+          <ul class="provider-list" style="margin-top: 1rem;">
+            {% for provider in filtered_providers %}
+            <li class="provider-item">
+              <p class="provider-name">{{ provider.name }}</p>
+              <div class="provider-info">
+                <p><strong>Phone:</strong> {{ provider.phone }}</p>
+                <p><strong>Address:</strong> {{ provider.address }}</p>
+                <p><strong>Hours:</strong> {{ provider.hours }}</p>
+              </div>
+              <div class="provider-specializations">
+                {% for spec in provider.specializations %}
+                <span class="provider-tag">{{ spec }}</span>
+                {% endfor %}
+              </div>
+              <div class="provider-details">
+                <ul>
+                  {% for detail in provider.details %}
+                  <li>{{ detail }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              
+              <!-- Booking Form -->
+              <div class="booking-section">
+                <button class="btn-book" type="button" onclick="toggleBooking('booking-{{ loop.index }}')">Book Appointment</button>
+                <div id="booking-{{ loop.index }}" class="booking-form" style="display: none;">
+                  <form method="POST" action="/book-appointment">
+                    <input type="hidden" name="provider_name" value="{{ provider.name }}">
+                    <input type="hidden" name="purpose" value="{{ selected_screening }}">
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="date-{{ loop.index }}">Select Date:</label>
+                        <input type="date" id="date-{{ loop.index }}" name="appointment_date" required min="{{ today }}">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="time-{{ loop.index }}">Select Time:</label>
+                        <select id="time-{{ loop.index }}" name="appointment_time" class="age-select" required>
+                          <option value="">-- Choose time --</option>
+                          <option value="8:00 AM">8:00 AM</option>
+                          <option value="9:00 AM">9:00 AM</option>
+                          <option value="10:00 AM">10:00 AM</option>
+                          <option value="11:00 AM">11:00 AM</option>
+                          <option value="12:00 PM">12:00 PM</option>
+                          <option value="1:00 PM">1:00 PM</option>
+                          <option value="2:00 PM">2:00 PM</option>
+                          <option value="3:00 PM">3:00 PM</option>
+                          <option value="4:00 PM">4:00 PM</option>
+                          <option value="5:00 PM">5:00 PM</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Confirm Booking</button>
+                  </form>
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% elif selected_screening and not filtered_providers %}
+        <div class="recommendations">
+          <p class="recommendations-title" style="color: #c41e3a;">No providers found for "{{ selected_screening }}". Please try another screening or contact us for assistance.</p>
+        </div>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      <!-- Find Providers Tab -->
+      {% if active_tab == 'providers' %}
+      <section class="section">
+        <h2 class="section-header">Healthcare Providers in Eastern NC</h2>
+        <ul class="provider-list">
+          {% for provider in providers %}
           <li class="provider-item">
             <p class="provider-name">{{ provider.name }}</p>
             <div class="provider-info">
@@ -94,31 +199,87 @@
           </li>
           {% endfor %}
         </ul>
-      </div>
-      {% elif selected_screening and not filtered_providers %}
-      <div class="recommendations">
-        <p class="recommendations-title" style="color: #c41e3a;">No providers found for "{{ selected_screening }}". Please try another screening or contact us for assistance.</p>
-      </div>
+      </section>
       {% endif %}
-    </section>
 
-    <!-- ── Local Healthcare Providers ── -->
-    <section class="section">
-      <h2 class="section-header">Local Healthcare Providers</h2>
-      <ul class="provider-list">
-        {% for provider in providers %}
-        <li class="provider-item">
-          <p class="provider-name">{{ provider.name }}</p>
-          <div class="provider-specializations">
-            {% for spec in provider.specializations %}
-            <span class="provider-tag">{{ spec }}</span>
-            {% endfor %}
+      <!-- Find Pharmacy Tab -->
+      {% if active_tab == 'pharmacy' %}
+      <section class="section">
+        <h2 class="section-header">Pharmacies Near You</h2>
+        <ul class="provider-list">
+          {% for pharmacy in pharmacies %}
+          <li class="provider-item">
+            <p class="provider-name">{{ pharmacy.name }}</p>
+            <div class="provider-info">
+              <p><strong>Phone:</strong> {{ pharmacy.phone }}</p>
+              <p><strong>Address:</strong> {{ pharmacy.address }}</p>
+              <p><strong>Hours:</strong> {{ pharmacy.hours }}</p>
+            </div>
+            <div class="provider-specializations">
+              {% for service in pharmacy.services %}
+              <span class="provider-tag">{{ service }}</span>
+              {% endfor %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      <!-- Settings Tab -->
+      {% if active_tab == 'settings' %}
+      <section class="section">
+        <h2 class="section-header">Account Settings</h2>
+        
+        <div class="settings-section">
+          <h3 class="settings-title">Appearance</h3>
+          <div class="settings-item">
+            <div>
+              <p class="settings-label">Theme</p>
+              <p class="settings-description">Choose between light and dark mode</p>
+            </div>
+            <form method="POST" action="/toggle-theme">
+              <button type="submit" class="theme-toggle-btn">
+                {% if theme == 'light' %}
+                  🌙 Switch to Dark Mode
+                {% else %}
+                  ☀️ Switch to Light Mode
+                {% endif %}
+              </button>
+            </form>
           </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </section>
+        </div>
 
+        <div class="settings-section">
+          <h3 class="settings-title">Account Information</h3>
+          <div class="settings-item">
+            <div>
+              <p class="settings-label">Username</p>
+              <p class="settings-description">test</p>
+            </div>
+          </div>
+          <div class="settings-item">
+            <div>
+              <p class="settings-label">Account Type</p>
+              <p class="settings-description">Patient Portal</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      {% endif %}
+
+    </div>
   </div>
+
+  <script>
+    function toggleBooking(id) {
+      const bookingForm = document.getElementById(id);
+      if (bookingForm.style.display === 'none') {
+        bookingForm.style.display = 'block';
+      } else {
+        bookingForm.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>

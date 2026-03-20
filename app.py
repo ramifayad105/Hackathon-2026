@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import datetime
 
 app = Flask(__name__, template_folder='Templates', static_folder='Static')
 app.secret_key = 'your-secret-key-change-in-production'
@@ -9,24 +10,52 @@ VALID_PASSWORD = 'test123'
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
-appointments = [
+# Store appointments in session instead of hardcoded
+def get_appointments():
+    return session.get('appointments', [])
+
+pharmacies = [
     {
-        'date': 'April 10, 2026',
-        'time': '9:00 AM',
-        'hospital': 'City General Hospital',
-        'purpose': 'Annual Physical Exam',
+        'name': 'CVS Pharmacy',
+        'address': '1500 S Memorial Dr, Greenville, NC 27834',
+        'phone': '(252) 756-6900',
+        'hours': 'Mon–Fri 8am–9pm, Sat–Sun 9am–6pm',
+        'services': ['Prescriptions', 'Vaccinations', 'Health Screenings', '24-Hour Pharmacy'],
     },
     {
-        'date': 'April 22, 2026',
-        'time': '2:30 PM',
-        'hospital': 'Riverside Medical Center',
-        'purpose': 'Cholesterol Screening',
+        'name': 'Walgreens Pharmacy',
+        'address': '2410 Stantonsburg Rd, Greenville, NC 27834',
+        'phone': '(252) 756-2191',
+        'hours': 'Mon–Fri 8am–10pm, Sat–Sun 9am–6pm',
+        'services': ['Prescriptions', 'Immunizations', 'Photo Services', 'Drive-Thru'],
     },
     {
-        'date': 'May 5, 2026',
-        'time': '11:00 AM',
-        'hospital': 'Northside Health Clinic',
-        'purpose': 'Blood Pressure Check',
+        'name': 'Walmart Pharmacy',
+        'address': '3040 Evans St, Greenville, NC 27834',
+        'phone': '(252) 355-5116',
+        'hours': 'Mon–Fri 9am–9pm, Sat 9am–7pm, Sun 10am–6pm',
+        'services': ['Prescriptions', 'Flu Shots', 'Health Tests', 'Low-Cost Generics'],
+    },
+    {
+        'name': 'Rite Aid Pharmacy',
+        'address': '1755 W Arlington Blvd, Greenville, NC 27834',
+        'phone': '(252) 756-4141',
+        'hours': 'Mon–Fri 8am–9pm, Sat–Sun 9am–6pm',
+        'services': ['Prescriptions', 'Wellness Programs', 'Vaccinations', 'Medication Therapy'],
+    },
+    {
+        'name': 'Harris Teeter Pharmacy',
+        'address': '3500 S Memorial Dr, Greenville, NC 27834',
+        'phone': '(252) 355-0023',
+        'hours': 'Mon–Fri 9am–8pm, Sat 9am–6pm, Sun 11am–5pm',
+        'services': ['Prescriptions', 'Immunizations', 'Health Consultations', 'Specialty Medications'],
+    },
+    {
+        'name': 'Food Lion Pharmacy',
+        'address': '2406 E 10th St, Greenville, NC 27858',
+        'phone': '(252) 758-4900',
+        'hours': 'Mon–Fri 9am–8pm, Sat 9am–6pm, Sun 12pm–5pm',
+        'services': ['Prescriptions', 'Flu Shots', 'Medication Counseling', 'Auto Refills'],
     },
 ]
 
@@ -303,6 +332,8 @@ def index():
     health_status = {}
     unhealthy_tests = []
     saved = False
+    appointments = get_appointments()
+    active_tab = request.args.get('tab', 'appointments')
 
     if request.method == 'POST':
         selected_age = request.form.get('age_range', '')
@@ -338,6 +369,7 @@ def index():
         'home.html',
         appointments=appointments,
         providers=providers,
+        pharmacies=pharmacies,
         selected_age=selected_age,
         recommended_tests=recommended_tests,
         selected_screening=selected_screening,
@@ -346,7 +378,60 @@ def index():
         health_status=health_status,
         unhealthy_tests=unhealthy_tests,
         saved=saved,
+        today=datetime.now().strftime('%Y-%m-%d'),
+        active_tab=active_tab,
+        theme=session.get('theme', 'light'),
     )
+
+
+@app.route('/book-appointment', methods=['POST'])
+def book_appointment():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    provider_name = request.form.get('provider_name', '')
+    appointment_date = request.form.get('appointment_date', '')
+    appointment_time = request.form.get('appointment_time', '')
+    purpose = request.form.get('purpose', '')
+    
+    if provider_name and appointment_date and appointment_time and purpose:
+        # Get existing appointments or initialize empty list
+        appointments = session.get('appointments', [])
+        
+        # Format date to be more readable (e.g., "April 10, 2026")
+        try:
+            date_obj = datetime.strptime(appointment_date, '%Y-%m-%d')
+            formatted_date = date_obj.strftime('%B %d, %Y')
+        except:
+            formatted_date = appointment_date
+        
+        # Add new appointment
+        new_appointment = {
+            'date': formatted_date,
+            'time': appointment_time,
+            'hospital': provider_name,
+            'purpose': purpose,
+        }
+        appointments.append(new_appointment)
+        
+        # Save back to session
+        session['appointments'] = appointments
+        session.modified = True
+    
+    return redirect(url_for('index', tab='appointments'))
+
+
+@app.route('/toggle-theme', methods=['POST'])
+def toggle_theme():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    current_theme = session.get('theme', 'light')
+    new_theme = 'dark' if current_theme == 'light' else 'light'
+    session['theme'] = new_theme
+    session.modified = True
+    
+    return redirect(url_for('index', tab='settings'))
 
 
 if __name__ == '__main__':

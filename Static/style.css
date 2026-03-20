@@ -548,7 +548,7 @@ body {
   box-shadow: var(--shadow);
   padding: var(--space-2xl);
   width: 100%;
-  max-width: 400px;
+  max-width: 520px;
 }
 
 .login-box h1 {

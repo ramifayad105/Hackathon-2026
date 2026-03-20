@@ -956,21 +956,21 @@ body {
    ============================================= */
 .nav-tabs {
   display: flex;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   margin-bottom: var(--space-xl);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: var(--space-sm);
-  overflow-x: auto;
+  padding: var(--space-sm) var(--space-lg);
   box-shadow: var(--shadow);
+  justify-content: space-between;
 }
 
 .nav-tab {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-md) var(--space-md);
   border-radius: var(--radius);
   text-decoration: none;
   color: var(--color-text-muted);
@@ -979,6 +979,8 @@ body {
   transition: background-color var(--transition), color var(--transition);
   white-space: nowrap;
   cursor: pointer;
+  flex: 1;
+  justify-content: center;
 }
 
 .nav-tab:hover {

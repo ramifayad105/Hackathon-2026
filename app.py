@@ -12,6 +12,7 @@ VALID_PASSWORD = 'test123'
 
 # File to store user accounts
 USERS_FILE = 'users.json'
+APPOINTMENTS_FILE = 'appointments.json'
 
 def load_users():
     """Load users from JSON file"""
@@ -27,6 +28,32 @@ def save_users(users):
     """Save users to JSON file"""
     with open(USERS_FILE, 'w') as f:
         json.dump(users, f, indent=2)
+
+def load_appointments():
+    """Load all appointments from JSON file"""
+    if os.path.exists(APPOINTMENTS_FILE):
+        try:
+            with open(APPOINTMENTS_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_appointments(appointments_data):
+    """Save all appointments to JSON file"""
+    with open(APPOINTMENTS_FILE, 'w') as f:
+        json.dump(appointments_data, f, indent=2)
+
+def get_user_appointments(username):
+    """Get appointments for a specific user"""
+    all_appointments = load_appointments()
+    return all_appointments.get(username, [])
+
+def save_user_appointments(username, appointments):
+    """Save appointments for a specific user"""
+    all_appointments = load_appointments()
+    all_appointments[username] = appointments
+    save_appointments(all_appointments)
 
 def verify_user(username, password):
     """Verify user credentials"""
@@ -55,9 +82,10 @@ def register_user(username, password):
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
-# Store appointments in session instead of hardcoded
+# Get appointments for the logged-in user
 def get_appointments():
-    return session.get('appointments', [])
+    username = session.get('username', 'guest')
+    return get_user_appointments(username)
 
 pharmacies = [
     {
@@ -397,6 +425,7 @@ def index():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
+    username = session.get('username', 'guest')
     selected_age = None
     recommended_tests = []
     selected_screening = None
@@ -405,7 +434,7 @@ def index():
     health_status = {}
     unhealthy_tests = []
     saved = False
-    appointments = get_appointments()
+    appointments = get_user_appointments(username)
     
     # Ensure all appointments have IDs and raw_date
     for idx, appt in enumerate(appointments):
@@ -419,10 +448,9 @@ def index():
             except:
                 appt['raw_date'] = datetime.now().strftime('%Y-%m-%d')
     
-    # Save updated appointments back to session
+    # Save updated appointments back to file
     if appointments:
-        session['appointments'] = appointments
-        session.modified = True
+        save_user_appointments(username, appointments)
     
     active_tab = request.args.get('tab', 'appointments')
 
@@ -480,14 +508,15 @@ def book_appointment():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
+    username = session.get('username', 'guest')
     provider_name = request.form.get('provider_name', '')
     appointment_date = request.form.get('appointment_date', '')
     appointment_time = request.form.get('appointment_time', '')
     purpose = request.form.get('purpose', '')
     
     if provider_name and appointment_date and appointment_time and purpose:
-        # Get existing appointments or initialize empty list
-        appointments = session.get('appointments', [])
+        # Get existing appointments for this user
+        appointments = get_user_appointments(username)
         
         # Format date to be more readable (e.g., "April 10, 2026")
         try:
@@ -507,9 +536,8 @@ def book_appointment():
         }
         appointments.append(new_appointment)
         
-        # Save back to session
-        session['appointments'] = appointments
-        session.modified = True
+        # Save back to file
+        save_user_appointments(username, appointments)
     
     return redirect(url_for('index', tab='appointments'))
 
@@ -519,18 +547,17 @@ def cancel_appointment(appointment_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
-    appointments = session.get('appointments', [])
+    username = session.get('username', 'guest')
+    appointments = get_user_appointments(username)
     
     # Remove appointment by ID
-    original_count = len(appointments)
     appointments = [appt for appt in appointments if appt.get('id') != appointment_id]
     
     # Re-index appointments
     for idx, appt in enumerate(appointments):
         appt['id'] = idx
     
-    session['appointments'] = appointments
-    session.modified = True
+    save_user_appointments(username, appointments)
     
     return redirect(url_for('index', tab='appointments'))
 
@@ -540,11 +567,12 @@ def reschedule_appointment(appointment_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
+    username = session.get('username', 'guest')
     new_date = request.form.get('appointment_date', '')
     new_time = request.form.get('appointment_time', '')
     
     if new_date and new_time:
-        appointments = session.get('appointments', [])
+        appointments = get_user_appointments(username)
         
         # Find and update the appointment
         for appt in appointments:
@@ -559,8 +587,7 @@ def reschedule_appointment(appointment_id):
                 appt['time'] = new_time
                 break
         
-        session['appointments'] = appointments
-        session.modified = True
+        save_user_appointments(username, appointments)
     
     return redirect(url_for('index', tab='appointments'))
 

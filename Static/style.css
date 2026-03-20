@@ -652,6 +652,50 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
+.register-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  transition: color var(--transition);
+}
+
+.register-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.success-message {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+  border: 1px solid #b3e0c0;
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.form-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-xs);
+}
+
+[data-theme="dark"] .success-message {
+  background-color: #1f3d2a;
+  color: #8aff9a;
+  border-color: #2f5a3a;
+}
+
+[data-theme="dark"] .register-link {
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .register-link:hover {
+  color: var(--color-primary-dark);
+}
+
 /* =============================================
    Logout Button
    ============================================= */

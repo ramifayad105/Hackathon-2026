@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime
+import json
+import os
 
 app = Flask(__name__, template_folder='Templates', static_folder='Static')
 app.secret_key = 'your-secret-key-change-in-production'
@@ -7,6 +9,49 @@ app.secret_key = 'your-secret-key-change-in-production'
 # Login credentials
 VALID_USERNAME = 'test'
 VALID_PASSWORD = 'test123'
+
+# File to store user accounts
+USERS_FILE = 'users.json'
+
+def load_users():
+    """Load users from JSON file"""
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_users(users):
+    """Save users to JSON file"""
+    with open(USERS_FILE, 'w') as f:
+        json.dump(users, f, indent=2)
+
+def verify_user(username, password):
+    """Verify user credentials"""
+    # Check default test account
+    if username == VALID_USERNAME and password == VALID_PASSWORD:
+        return True
+    
+    # Check registered users
+    users = load_users()
+    if username in users and users[username] == password:
+        return True
+    
+    return False
+
+def register_user(username, password):
+    """Register a new user"""
+    users = load_users()
+    
+    # Check if username already exists
+    if username in users or username == VALID_USERNAME:
+        return False
+    
+    users[username] = password
+    save_users(users)
+    return True
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -304,13 +349,41 @@ def login():
         username = request.form.get('username', '')
         password = request.form.get('password', '')
         
-        if username == VALID_USERNAME and password == VALID_PASSWORD:
+        if verify_user(username, password):
             session['logged_in'] = True
+            session['username'] = username
             return redirect(url_for('index'))
         else:
             error = 'Invalid username or password'
     
     return render_template('login.html', error=error)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    error = None
+    success = None
+    
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Validation
+        if not username or not password:
+            error = 'Username and password are required'
+        elif len(username) < 3:
+            error = 'Username must be at least 3 characters'
+        elif len(password) < 6:
+            error = 'Password must be at least 6 characters'
+        elif password != confirm_password:
+            error = 'Passwords do not match'
+        elif register_user(username, password):
+            success = 'Account created successfully! You can now login.'
+        else:
+            error = 'Username already exists'
+    
+    return render_template('register.html', error=error, success=success)
 
 
 @app.route('/logout')

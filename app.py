@@ -333,6 +333,24 @@ def index():
     unhealthy_tests = []
     saved = False
     appointments = get_appointments()
+    
+    # Ensure all appointments have IDs and raw_date
+    for idx, appt in enumerate(appointments):
+        if 'id' not in appt:
+            appt['id'] = idx
+        if 'raw_date' not in appt:
+            # Try to parse the formatted date back to raw format
+            try:
+                date_obj = datetime.strptime(appt['date'], '%B %d, %Y')
+                appt['raw_date'] = date_obj.strftime('%Y-%m-%d')
+            except:
+                appt['raw_date'] = datetime.now().strftime('%Y-%m-%d')
+    
+    # Save updated appointments back to session
+    if appointments:
+        session['appointments'] = appointments
+        session.modified = True
+    
     active_tab = request.args.get('tab', 'appointments')
 
     if request.method == 'POST':
@@ -423,7 +441,7 @@ def book_appointment():
     return redirect(url_for('index', tab='appointments'))
 
 
-@app.route('/cancel-appointment/<int:appointment_id>', methods=['POST'])
+@app.route('/cancel-appointment/<int:appointment_id>', methods=['POST', 'GET'])
 def cancel_appointment(appointment_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
@@ -431,6 +449,7 @@ def cancel_appointment(appointment_id):
     appointments = session.get('appointments', [])
     
     # Remove appointment by ID
+    original_count = len(appointments)
     appointments = [appt for appt in appointments if appt.get('id') != appointment_id]
     
     # Re-index appointments

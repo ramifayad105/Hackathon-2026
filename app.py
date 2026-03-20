@@ -606,4 +606,6 @@ def toggle_theme():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # host='0.0.0.0' allows access from other devices on the network
+    # Use your machine's IP address (e.g., 192.168.1.x:5000) from other devices
+    app.run(debug=True, host='0.0.0.0', port=5000)

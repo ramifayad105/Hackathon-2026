@@ -1,6 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__, template_folder='Templates', static_folder='Static')
+app.secret_key = 'your-secret-key-change-in-production'
+
+# Login credentials
+VALID_USERNAME = 'test'
+VALID_PASSWORD = 'test123'
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -248,7 +253,31 @@ providers = [
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route('/', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username', '')
+        password = request.form.get('password', '')
+        
+        if username == VALID_USERNAME and password == VALID_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            error = 'Invalid username or password'
+    
+    return render_template('login.html', error=error)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
+
+@app.route('/home', methods=['GET', 'POST'])
 def index():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     selected_age = None
     recommended_tests = []
     user_values = {}

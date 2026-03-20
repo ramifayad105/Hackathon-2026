@@ -8,7 +8,10 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="dashboard-title">Preventive Care Dashboard</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h1 class="dashboard-title" style="margin-bottom: 0;">Preventive Care Dashboard</h1>
+      <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </div>
 
     <!-- ── Upcoming Appointments ── -->
     <section class="section">
@@ -32,7 +35,7 @@
     <!-- ── Age-Based Health Guidelines ── -->
     <section class="section">
       <h2 class="section-header">Age-Based Health Guidelines</h2>
-      <form class="age-form" method="POST" action="/">
+      <form class="age-form" method="POST" action="/home">
         <label for="age_range">Select your age range:</label>
         <select class="age-select" id="age_range" name="age_range">
           <option value="" disabled {% if not selected_age %}selected{% endif %}>-- Choose age range --</option>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background -->
+  <rect width="100" height="100" rx="20" fill="#592c88"/>
+  
+  <!-- Hospital sign (medical cross) -->
+  <rect x="42" y="28" width="16" height="44" rx="2" fill="#ffffff"/>
+  <rect x="28" y="42" width="44" height="16" rx="2" fill="#ffffff"/>
+  
+  <!-- Stethoscope tube wrapping around -->
+  <path d="M 25 45 Q 20 50, 20 60 Q 20 70, 30 75 Q 40 80, 50 80" stroke="#c8a951" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 75 45 Q 80 50, 80 60 Q 80 70, 70 75 Q 60 80, 50 80" stroke="#c8a951" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Stethoscope earpieces -->
+  <circle cx="25" cy="42" r="4" fill="#c8a951"/>
+  <circle cx="75" cy="42" r="4" fill="#c8a951"/>
+  
+  <!-- Stethoscope chest piece (diaphragm) -->
+  <circle cx="50" cy="82" r="6" fill="#c8a951" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="50" cy="82" r="3" fill="#592c88"/>
+</svg>
+

@@ -48,11 +48,58 @@
         {% if appointments %}
           <ul class="appointment-list">
             {% for appt in appointments %}
-            <li class="appointment-item">
-              <span class="appointment-date">{{ appt.date }}</span>
-              <span class="appointment-time">{{ appt.time }}</span>
-              <span class="appointment-hospital">{{ appt.hospital }}</span>
-              <span class="appointment-purpose">{{ appt.purpose }}</span>
+            <li class="appointment-item-card">
+              <div class="appointment-info-grid">
+                <div class="appointment-date-time">
+                  <span class="appointment-date">{{ appt.date }}</span>
+                  <span class="appointment-time">{{ appt.time }}</span>
+                </div>
+                <div class="appointment-details">
+                  <span class="appointment-hospital">{{ appt.hospital }}</span>
+                  <span class="appointment-purpose">{{ appt.purpose }}</span>
+                </div>
+              </div>
+              
+              <div class="appointment-actions">
+                <button class="btn-reschedule" onclick="toggleReschedule('reschedule-{{ appt.id }}')">Reschedule</button>
+                <form method="POST" action="/cancel-appointment/{{ appt.id }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                  <button type="submit" class="btn-cancel">Cancel</button>
+                </form>
+              </div>
+              
+              <!-- Reschedule Form -->
+              <div id="reschedule-{{ appt.id }}" class="reschedule-form" style="display: none;">
+                <form method="POST" action="/reschedule-appointment/{{ appt.id }}">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="reschedule-date-{{ appt.id }}">New Date:</label>
+                      <input type="date" id="reschedule-date-{{ appt.id }}" name="appointment_date" required min="{{ today }}" value="{{ appt.raw_date }}">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="reschedule-time-{{ appt.id }}">New Time:</label>
+                      <select id="reschedule-time-{{ appt.id }}" name="appointment_time" class="age-select" required>
+                        <option value="">-- Choose time --</option>
+                        <option value="8:00 AM" {% if appt.time == '8:00 AM' %}selected{% endif %}>8:00 AM</option>
+                        <option value="9:00 AM" {% if appt.time == '9:00 AM' %}selected{% endif %}>9:00 AM</option>
+                        <option value="10:00 AM" {% if appt.time == '10:00 AM' %}selected{% endif %}>10:00 AM</option>
+                        <option value="11:00 AM" {% if appt.time == '11:00 AM' %}selected{% endif %}>11:00 AM</option>
+                        <option value="12:00 PM" {% if appt.time == '12:00 PM' %}selected{% endif %}>12:00 PM</option>
+                        <option value="1:00 PM" {% if appt.time == '1:00 PM' %}selected{% endif %}>1:00 PM</option>
+                        <option value="2:00 PM" {% if appt.time == '2:00 PM' %}selected{% endif %}>2:00 PM</option>
+                        <option value="3:00 PM" {% if appt.time == '3:00 PM' %}selected{% endif %}>3:00 PM</option>
+                        <option value="4:00 PM" {% if appt.time == '4:00 PM' %}selected{% endif %}>4:00 PM</option>
+                        <option value="5:00 PM" {% if appt.time == '5:00 PM' %}selected{% endif %}>5:00 PM</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="reschedule-actions">
+                    <button type="submit" class="btn-submit">Save Changes</button>
+                    <button type="button" class="btn-cancel-action" onclick="toggleReschedule('reschedule-{{ appt.id }}')">Cancel</button>
+                  </div>
+                </form>
+              </div>
             </li>
             {% endfor %}
           </ul>
@@ -278,6 +325,15 @@
         bookingForm.style.display = 'block';
       } else {
         bookingForm.style.display = 'none';
+      }
+    }
+
+    function toggleReschedule(id) {
+      const rescheduleForm = document.getElementById(id);
+      if (rescheduleForm.style.display === 'none') {
+        rescheduleForm.style.display = 'block';
+      } else {
+        rescheduleForm.style.display = 'none';
       }
     }
   </script>

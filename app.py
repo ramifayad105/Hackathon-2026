@@ -405,9 +405,11 @@ def book_appointment():
         except:
             formatted_date = appointment_date
         
-        # Add new appointment
+        # Add new appointment with unique ID
         new_appointment = {
+            'id': len(appointments),
             'date': formatted_date,
+            'raw_date': appointment_date,
             'time': appointment_time,
             'hospital': provider_name,
             'purpose': purpose,
@@ -415,6 +417,56 @@ def book_appointment():
         appointments.append(new_appointment)
         
         # Save back to session
+        session['appointments'] = appointments
+        session.modified = True
+    
+    return redirect(url_for('index', tab='appointments'))
+
+
+@app.route('/cancel-appointment/<int:appointment_id>', methods=['POST'])
+def cancel_appointment(appointment_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    appointments = session.get('appointments', [])
+    
+    # Remove appointment by ID
+    appointments = [appt for appt in appointments if appt.get('id') != appointment_id]
+    
+    # Re-index appointments
+    for idx, appt in enumerate(appointments):
+        appt['id'] = idx
+    
+    session['appointments'] = appointments
+    session.modified = True
+    
+    return redirect(url_for('index', tab='appointments'))
+
+
+@app.route('/reschedule-appointment/<int:appointment_id>', methods=['POST'])
+def reschedule_appointment(appointment_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    new_date = request.form.get('appointment_date', '')
+    new_time = request.form.get('appointment_time', '')
+    
+    if new_date and new_time:
+        appointments = session.get('appointments', [])
+        
+        # Find and update the appointment
+        for appt in appointments:
+            if appt.get('id') == appointment_id:
+                try:
+                    date_obj = datetime.strptime(new_date, '%Y-%m-%d')
+                    appt['date'] = date_obj.strftime('%B %d, %Y')
+                    appt['raw_date'] = new_date
+                except:
+                    appt['date'] = new_date
+                    appt['raw_date'] = new_date
+                appt['time'] = new_time
+                break
+        
         session['appointments'] = appointments
         session.modified = True
     

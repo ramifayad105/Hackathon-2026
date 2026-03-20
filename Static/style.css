@@ -1,0 +1,396 @@
+/* =============================================
+   CSS Reset & Base
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =============================================
+   Design Tokens
+   ============================================= */
+:root {
+  /* Colors */
+  --color-primary:       #2a7ae4;
+  --color-primary-dark:  #1a5bbf;
+  --color-accent:        #27ae60;
+  --color-bg:            #f4f7fb;
+  --color-surface:       #ffffff;
+  --color-border:        #dce3ed;
+  --color-text:          #1e2a3a;
+  --color-text-muted:    #6b7a90;
+  --color-hover-bg:      #eef3fc;
+  --color-empty:         #a0aab8;
+
+  /* Typography */
+  --font-family:         'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-size-base:      16px;
+  --font-size-sm:        0.875rem;
+  --font-size-lg:        1.125rem;
+  --font-size-xl:        1.375rem;
+  --font-weight-normal:  400;
+  --font-weight-medium:  500;
+  --font-weight-bold:    700;
+
+  /* Spacing */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+  --space-2xl: 3rem;
+
+  /* Misc */
+  --radius:    8px;
+  --shadow:    0 2px 8px rgba(0, 0, 0, 0.07);
+  --transition: 0.18s ease;
+}
+
+/* =============================================
+   Base
+   ============================================= */
+html {
+  font-size: var(--font-size-base);
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: var(--space-xl) var(--space-md);
+}
+
+/* =============================================
+   Main Container
+   ============================================= */
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.dashboard-title {
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-xl);
+  letter-spacing: -0.02em;
+}
+
+/* =============================================
+   Dashboard Sections
+   ============================================= */
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space-lg) var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.section-header {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* =============================================
+   Appointments Section
+   ============================================= */
+.appointment-list {
+  list-style: none;
+}
+
+.appointment-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-sm) var(--space-md);
+  align-items: start;
+  padding: var(--space-md);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-md);
+  transition: background-color var(--transition), box-shadow var(--transition);
+}
+
+.appointment-item:last-child {
+  margin-bottom: 0;
+}
+
+.appointment-item:hover {
+  background-color: var(--color-hover-bg);
+  box-shadow: 0 2px 10px rgba(42, 122, 228, 0.1);
+}
+
+.appointment-date {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+.appointment-time {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.appointment-hospital {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  grid-column: 2;
+}
+
+.appointment-purpose {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  grid-column: 2;
+}
+
+.appointment-empty {
+  color: var(--color-empty);
+  font-style: italic;
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+
+/* =============================================
+   Age Guidelines Section - Form
+   ============================================= */
+.age-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-lg);
+}
+
+.age-form label {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.age-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a90' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-md) center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-2xl) var(--space-sm) var(--space-md);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  min-width: 140px;
+}
+
+.age-select:hover {
+  border-color: var(--color-primary);
+}
+
+.age-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(42, 122, 228, 0.2);
+}
+
+.btn-submit {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition), box-shadow var(--transition);
+}
+
+.btn-submit:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: 0 2px 8px rgba(42, 122, 228, 0.3);
+}
+
+.btn-submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(42, 122, 228, 0.3);
+}
+
+.btn-submit:active {
+  background-color: var(--color-primary-dark);
+  transform: translateY(1px);
+}
+
+/* =============================================
+   Age Guidelines Section - Recommendations
+   ============================================= */
+.recommendations {
+  margin-top: var(--space-md);
+}
+
+.recommendations-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+}
+
+.recommendations-list {
+  list-style: none;
+}
+
+.recommendations-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+  background-color: #f0faf4;
+  border-left: 3px solid var(--color-accent);
+  line-height: 1.5;
+}
+
+.recommendations-list li::before {
+  content: '✓';
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   Providers Section
+   ============================================= */
+.provider-list {
+  list-style: none;
+}
+
+.provider-item {
+  padding: var(--space-md);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-md);
+  transition: background-color var(--transition);
+}
+
+.provider-item:last-child {
+  margin-bottom: 0;
+}
+
+.provider-item:hover {
+  background-color: var(--color-hover-bg);
+}
+
+.provider-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+}
+
+.provider-specializations {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.provider-tag {
+  background-color: #eef3fc;
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 2px var(--space-sm);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-medium);
+}
+
+/* =============================================
+   Responsive Design
+   ============================================= */
+
+/* Tablet */
+@media (max-width: 768px) {
+  body {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .section {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .appointment-item {
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+  }
+
+  .appointment-hospital {
+    grid-column: 1;
+  }
+
+  .appointment-purpose {
+    grid-column: 1;
+  }
+
+  .age-form {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .age-select,
+  .btn-submit {
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  body {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .section {
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .section-header {
+    font-size: var(--font-size-lg);
+  }
+
+  .dashboard-title {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-lg);
+  }
+
+  .provider-specializations {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .recommendations-list li {
+    font-size: var(--font-size-sm);
+  }
+}

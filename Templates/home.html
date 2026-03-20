@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preventive Care Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="dashboard-title">Preventive Care Dashboard</h1>
+
+    <!-- ── Upcoming Appointments ── -->
+    <section class="section">
+      <h2 class="section-header">Upcoming Appointments</h2>
+      {% if appointments %}
+        <ul class="appointment-list">
+          {% for appt in appointments %}
+          <li class="appointment-item">
+            <span class="appointment-date">{{ appt.date }}</span>
+            <span class="appointment-time">{{ appt.time }}</span>
+            <span class="appointment-hospital">{{ appt.hospital }}</span>
+            <span class="appointment-purpose">{{ appt.purpose }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="appointment-empty">No upcoming appointments scheduled.</p>
+      {% endif %}
+    </section>
+
+    <!-- ── Age-Based Health Guidelines ── -->
+    <section class="section">
+      <h2 class="section-header">Age-Based Health Guidelines</h2>
+      <form class="age-form" method="POST" action="/">
+        <label for="age_range">Select your age range:</label>
+        <select class="age-select" id="age_range" name="age_range">
+          <option value="" disabled {% if not selected_age %}selected{% endif %}>-- Choose age range --</option>
+          {% for range in ['18-30', '31-50', '51+'] %}
+          <option value="{{ range }}" {% if selected_age == range %}selected{% endif %}>{{ range }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn-submit" type="submit">Get Recommendations</button>
+      </form>
+
+      {% if recommended_tests %}
+      <div class="recommendations">
+        <p class="recommendations-title">Recommended screenings for age {{ selected_age }}:</p>
+        <ul class="recommendations-list">
+          {% for test in recommended_tests %}
+          <li>{{ test }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ── Local Healthcare Providers ── -->
+    <section class="section">
+      <h2 class="section-header">Local Healthcare Providers</h2>
+      <ul class="provider-list">
+        {% for provider in providers %}
+        <li class="provider-item">
+          <p class="provider-name">{{ provider.name }}</p>
+          <div class="provider-specializations">
+            {% for spec in provider.specializations %}
+            <span class="provider-tag">{{ spec }}</span>
+            {% endfor %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+  </div>
+</body>
+</html>
